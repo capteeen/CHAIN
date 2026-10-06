@@ -92,3 +92,37 @@ body {
 .float-up { animation: float-up 1.4s ease-out both; }
 @keyframes toast-in { from { transform: translate(-50%, 12px); opacity: 0 } to { transform: translate(-50%, 0); opacity: 1 } }
 .toast-in { animation: toast-in 200ms ease-out both; }
+
+/* ---------- 3D scene labels ---------- */
+.lbl { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 11px; font-weight: 600; color: rgb(var(--muted)); transition: opacity 200ms; will-change: transform; }
+.lbl-num { font-style: italic; font-weight: 500; }
+.lbl-key { font-size: 12px; color: rgb(var(--ink)); background: rgb(var(--surface) / 0.85); border: 1px solid rgb(var(--rule)); border-radius: 999px; padding: 3px 9px; backdrop-filter: blur(4px); }
+.lbl-root { color: rgb(var(--gold)) !important; }
+.lbl-float { font-size: 12px; font-weight: 700; color: rgb(var(--ink)); }
+.lbl-forge { font-size: 14px; letter-spacing: -0.02em; }
+.lbl-broken { color: rgb(var(--broken)) !important; }
+.lbl[data-pin="pin-l"]::before { content: '← '; }
+.lbl[data-pin="pin-r"]::after { content: ' →'; }
+
+/* ---------- scroll reveal ---------- */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 700ms cubic-bezier(.2,.7,.2,1), transform 700ms cubic-bezier(.2,.7,.2,1); }
+.reveal.in { opacity: 1; transform: none; }
+.lift { transition: transform 300ms cubic-bezier(.2,.7,.2,1), box-shadow 300ms, border-color 300ms; }
+.lift:hover { transform: translateY(-3px); box-shadow: 0 12px 32px -16px rgb(0 0 0 / 0.35); border-color: rgb(var(--steel) / 0.6); }
+
+/* ---------- hero letters ---------- */
+@keyframes letter-in { from { transform: translateY(0.35em) rotate(2deg); opacity: 0 } to { transform: none; opacity: 1 } }
+.letter { display: inline-block; animation: letter-in 700ms cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * 70ms + 80ms); }
+
+/* ---------- ticker ---------- */
+@keyframes tick-in { from { transform: translateX(-16px); opacity: 0 } to { transform: none; opacity: 1 } }
+.tick-in { animation: tick-in 400ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes live-dot { 0%,100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.6); opacity: .4 } }
+.live-dot { animation: live-dot 1.4s ease-in-out infinite; }
+@keyframes flash { 0% { background: rgb(var(--steel) / 0.14) } 100% { background: transparent } }
+.flash { animation: flash 900ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .letter, .tick-in, .live-dot, .flash { animation: none !important; }
+}

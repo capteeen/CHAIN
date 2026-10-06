@@ -1,17 +1,20 @@
 import { useState, type ReactNode } from 'react';
 import { useTween } from '../lib/useTween';
 import { useUi } from '../ui';
+import { Reveal } from './Reveal';
 
 export function SectionHead({ eyebrow, lines, id }: { eyebrow: string; lines: [string, string]; id?: string }) {
   return (
-    <div id={id} className="mb-10 sm:mb-14">
-      <p className="eyebrow mb-4">{eyebrow}</p>
-      <h2 className="h2">
-        {lines[0]}
-        <br />
-        <span className="text-muted">{lines[1]}</span>
-      </h2>
-    </div>
+    <Reveal className="mb-10 sm:mb-14">
+      <div id={id}>
+        <p className="eyebrow mb-4">{eyebrow}</p>
+        <h2 className="h2">
+          {lines[0]}
+          <br />
+          <span className="text-muted">{lines[1]}</span>
+        </h2>
+      </div>
+    </Reveal>
   );
 }
 

@@ -1,10 +1,11 @@
 import { useUi } from '../ui';
+import { Reveal } from './Reveal';
 
 export function Closing() {
   const setLaunch = useUi((s) => s.setLaunch);
   return (
     <section className="border-t border-rule py-24 sm:py-36">
-      <div className="wrap">
+      <Reveal className="wrap">
         <p className="eyebrow mb-4">One coin. One line.</p>
         <h2 className="h2">
           Launch once.
@@ -14,7 +15,7 @@ export function Closing() {
         <button className="btn-primary mt-10 h-12 px-7" onClick={() => setLaunch(true)}>
           Launch coin
         </button>
-      </div>
+      </Reveal>
     </section>
   );
 }

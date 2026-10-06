@@ -5,6 +5,9 @@ import { renderOg } from '../lib/og';
 import type { Chain, Link } from '../types';
 import { Arrow, ChainImage, Copy, VaultBar } from './Bits';
 import { ChainStrip } from './ChainStrip';
+import { ChainScene } from '../three/ChainScene';
+import { ActivityFeed } from './Activity';
+import { Reveal } from './Reveal';
 
 function Row({ k, children }: { k: string; children: React.ReactNode }) {
   return (
@@ -172,7 +175,7 @@ export function ChainDetail({ id }: { id: string }) {
             <h1 className="text-[clamp(40px,8vw,96px)] font-black uppercase leading-[0.85] tracking-crush">{chain.name}</h1>
           </div>
         </div>
-        <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-rule bg-rule md:grid-cols-4">
+        <div className="reveal in mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-rule bg-rule md:grid-cols-4">
           {stats.map(([k, v]) => (
             <div key={k} className="bg-surface p-4 sm:p-6">
               <p className="text-2xl font-extrabold tracking-tight tabular-nums sm:text-3xl">{v}</p>
@@ -190,14 +193,23 @@ export function ChainDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      <div className="mt-10 border-y border-rule bg-surface py-6">
-        <ChainStrip chainId={chain.id} selected={selected.n} onSelect={setSel} />
-        <p className="wrap mt-3 text-xs text-muted">Tap a link for details. Swipe to scroll the line.</p>
+      <div className="mt-10 border-y border-rule bg-surface">
+        <ChainScene chainId={chain.id} mode="detail" selected={selected.n} onSelect={setSel} className="h-[300px] sm:h-[380px] lg:h-[440px]" />
+        <div className="border-t border-rule pt-2">
+          <ChainStrip chainId={chain.id} selected={selected.n} onSelect={setSel} />
+        </div>
+        <p className="wrap pb-4 text-xs text-muted">Click a link for details. Swipe to scroll the line.</p>
       </div>
 
       <div className="wrap mt-10 grid gap-6 lg:grid-cols-[1fr_420px]">
         <LinkPanel chain={chain} link={selected} links={links} onSelect={setSel} />
-        <OgCard chain={chain} />
+        <div className="space-y-6">
+          <Reveal className="card p-5 sm:p-6">
+            <p className="eyebrow mb-2">Activity</p>
+            <ActivityFeed chainId={chain.id} limit={6} />
+          </Reveal>
+          <OgCard chain={chain} />
+        </div>
       </div>
     </div>
   );

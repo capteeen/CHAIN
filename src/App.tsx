@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRoute } from './lib/router';
 import { useUi } from './ui';
 import { Nav } from './components/Nav';
+import { Ticker } from './components/Activity';
 import { Hero } from './components/Hero';
 import { Steps } from './components/Steps';
 import { LiveSim } from './components/LiveSim';
@@ -46,6 +47,7 @@ export default function App() {
   return (
     <>
       <Nav />
+      <Ticker />
       {route.page === 'chain' ? <ChainDetail id={route.id} /> : <Home section={route.section} />}
       <Footer />
       <LaunchModal />

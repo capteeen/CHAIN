@@ -4,6 +4,7 @@ import { useUi } from '../ui';
 import { sol } from '../lib/format';
 import type { Chain } from '../types';
 import { ChainImage, SectionHead, Tabs } from './Bits';
+import { Reveal } from './Reveal';
 
 type Tab = 'longest' | 'fees' | 'fastest';
 
@@ -24,7 +25,7 @@ export function Leaderboard() {
       <div className="wrap">
         <SectionHead eyebrow="Leaderboard" lines={['Longest', 'lines']} />
         <Tabs<Tab> value={tab} onChange={setTab} options={[['longest', 'Longest chain'], ['fees', 'Most fees to #1'], ['fastest', 'Fastest forging']]} />
-        <ol className="card overflow-hidden">
+        <Reveal className="card overflow-hidden"><ol>
           {rows.map((c, i) => {
             const broken = c.status === 'broken';
             return (
@@ -48,7 +49,7 @@ export function Leaderboard() {
               </li>
             );
           })}
-        </ol>
+        </ol></Reveal>
         <button className="btn-primary mt-12" onClick={() => setLaunch(true)}>
           Start yours
         </button>

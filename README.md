@@ -29,9 +29,26 @@ src/
   store.ts           Zustand store, fed by whichever Feed is active
   ui.ts              modal + toast state
   lib/               router, theme (night mode), tween counters, formatting, OG renderer, placeholder art
-  components/        one file per section + ChainStrip (the link animation) + LaunchModal
+  three/             Three.js scene (ChainScene), fee particles, projected HTML labels
+  components/        one file per section + ChainStrip (2D strip) + Activity (ticker, feed) + LaunchModal
 public/logo.png      OG / Twitter image
+brand/               Twitter profile icon (dark + light) and banner
 ```
+
+## 3D scene (`src/three/ChainScene.tsx`)
+
+Built with Three.js via `@react-three/fiber`. Each link is a metallic torus, alternating orientation so the line interlocks; #1 is gold, the live tip glows as its vault fills, a dead tip hangs red.
+
+It animates **only on store events** (no replay on reload):
+
+| Event | What you see |
+| --- | --- |
+| `trade` | a coin drops onto the link; 3 steel particles sink into the tip's vault (the 70%) |
+| `fee_to_root` | 4 particles fly back along the line to #1 (the 30%) |
+| `forge` | the new link scales in with a 400ms overshoot and a spark burst, and the camera pans to it |
+| `break` | the tip turns red, swings down and drops off the line |
+
+Modes: `hero` (ambient, non-interactive, parallax from the pointer), `live` (labels and floats), `detail` (click a link to select it). Rendering pauses while the canvas is off-screen and respects `prefers-reduced-motion`.
 
 ## How data flows
 

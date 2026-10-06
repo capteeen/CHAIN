@@ -4,6 +4,7 @@ import { useUi } from '../ui';
 import { sol } from '../lib/format';
 import type { Chain, Link } from '../types';
 import { Arrow, ChainImage, SectionHead, Tabs, VaultBar } from './Bits';
+import { Reveal } from './Reveal';
 
 type Tab = 'new' | 'soon' | 'longest';
 
@@ -66,11 +67,11 @@ export function Explore() {
       <div className="wrap">
         <SectionHead eyebrow="Explore" lines={['Every', 'chain']} />
         <Tabs<Tab> value={tab} onChange={setTab} options={[['new', 'New'], ['soon', 'About to forge'], ['longest', 'Longest']]} />
-        <div className="card overflow-hidden">
+        <Reveal className="card overflow-hidden">
           {rows.slice(0, 12).map((c) => (
             <ChainRow key={c.id} chain={c} tip={links[c.id]?.[links[c.id].length - 1]} />
           ))}
-        </div>
+        </Reveal>
         <button className="btn-primary mt-12" onClick={() => setLaunch(true)}>
           Launch coin
         </button>
