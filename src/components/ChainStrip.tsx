@@ -1,20 +1,44 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ChainEvent, Link } from '../types';
 import { useStore } from '../store';
 
 const CELL = 56; // px per link; rings overlap neighbours so they read as interlocked
+const PAD_X = 16; // px-4
+const ICON_Y = 12 + 24; // pt-3 + icon centre
+const VAULT_Y = 12 + 52 + 18 + 6; // pt-3 + icon block + number + bar
+
+const xOf = (i: number) => PAD_X + i * CELL + CELL / 2;
 
 const RAYS = [0, 60, 120, 180, 240, 300].map((deg) => {
   const r = (deg * Math.PI) / 180;
   return { dx: Math.cos(r) * 14, dy: Math.sin(r) * 14 };
 });
 
-function LinkIcon({ n, dead, animate }: { n: number; dead: boolean; animate: boolean }) {
+interface Flight {
+  id: string;
+  kind: 'root' | 'vault' | 'coin';
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+  dur: number;
+  delay: number;
+}
+
+function LinkIcon({ n, dead, animate, hot, hit }: { n: number; dead: boolean; animate: boolean; hot: number; hit?: number }) {
   const root = n === 1;
   const stroke = dead ? 'rgb(var(--broken))' : root ? 'rgb(var(--gold))' : 'rgb(var(--steel))';
   const ring = n % 2 === 1;
   return (
-    <svg width={88} height={48} viewBox="0 0 88 48" className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 overflow-visible" aria-hidden>
+    <svg
+      key={hit}
+      width={88}
+      height={48}
+      viewBox="0 0 88 48"
+      className={`pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 overflow-visible ${hit ? 'clink' : ''}`}
+      aria-hidden
+    >
+      {hot > 0 && (ring ? <ellipse cx={44} cy={24} rx={32} ry={17} fill="none" className="heat" stroke="rgb(var(--ink))" strokeWidth={7} style={{ opacity: hot * 0.6 }} /> : <rect x={12} y={19} width={64} height={10} rx={5} className="heat" fill="rgb(var(--ink))" style={{ opacity: hot * 0.6 }} />)}
       {ring ? (
         <ellipse
           className="ring"
@@ -72,6 +96,8 @@ function LinkCell({
   animate,
   selected,
   trade,
+  hit,
+  paid,
   onSelect,
 }: {
   link: Link;
@@ -79,10 +105,13 @@ function LinkCell({
   animate: boolean;
   selected: boolean;
   trade?: ChainEvent;
+  hit?: number;
+  paid?: number;
   onSelect?: (n: number) => void;
 }) {
   const p = tip ? Math.min(1, link.vault / link.threshold) : 1;
   const root = link.n === 1;
+  const hot = tip && link.alive ? p * p : 0;
   return (
     <button
       type="button"
@@ -95,7 +124,8 @@ function LinkCell({
       tabIndex={onSelect ? 0 : -1}
     >
       {root && <span className="absolute inset-y-0 -left-8 -right-3 bg-gradient-to-r from-[rgb(var(--surface))] from-75% to-transparent" aria-hidden />}
-      <LinkIcon n={link.n} dead={!link.alive} animate={animate} />
+      {root && paid && <span key={paid} className="paid-ring" aria-hidden />}
+      <LinkIcon n={link.n} dead={!link.alive} animate={animate} hot={hot} hit={hit} />
       {trade && (
         <span key={trade.id} className="pointer-events-none absolute -top-1 left-1/2 -translate-x-1/2 float-up whitespace-nowrap text-[10px] font-semibold text-muted">
           +{(trade.amount ?? 0).toFixed(3)}
@@ -106,7 +136,7 @@ function LinkCell({
       </span>
       <span className="relative mt-1 h-1 w-9 overflow-hidden rounded-full bg-rule">
         <span
-          className={`block h-full rounded-full transition-[width] duration-500 ${root ? 'bg-gold' : tip ? 'bg-steel' : 'bg-steel/40'}`}
+          className={`block h-full rounded-full transition-[width] duration-500 ${root ? 'bg-gold' : tip ? 'bg-steel' : 'bg-steel/40'} ${tip && p > 0.8 ? 'bar-hot' : ''}`}
           style={{ width: `${p * 100}%` }}
         />
       </span>
@@ -115,9 +145,27 @@ function LinkCell({
   );
 }
 
+/** The dashed slot where the next link will forge. */
+function Ghost({ n, broken }: { n: number; broken: boolean }) {
+  const ring = n % 2 === 1;
+  return (
+    <span className="relative flex shrink-0 flex-col items-center pt-[52px]" style={{ width: CELL * 1.5 }} aria-hidden>
+      <svg width={88} height={48} viewBox="0 0 88 48" className={`absolute left-1/2 top-0 -translate-x-1/2 overflow-visible ${broken ? '' : 'ghost-breathe'}`}>
+        {ring ? (
+          <ellipse cx={44} cy={24} rx={32} ry={17} fill="none" stroke={broken ? 'rgb(var(--broken))' : 'rgb(var(--rule))'} strokeWidth={2} strokeDasharray="5 5" />
+        ) : (
+          <rect x={12} y={19} width={64} height={10} rx={5} fill="none" stroke={broken ? 'rgb(var(--broken))' : 'rgb(var(--rule))'} strokeWidth={2} strokeDasharray="5 5" />
+        )}
+      </svg>
+      <span className={`num whitespace-nowrap ${broken ? '!text-broken' : ''}`}>{broken ? 'broken' : <span className="forging">forging<span>.</span><span>.</span><span>.</span></span>}</span>
+    </span>
+  );
+}
+
 /**
- * Horizontal chain. Link #1 is pinned left; new links slide in from the right with the
- * forge animation — but only when the store reports a real forge event.
+ * Horizontal chain. Link #1 is pinned left; new links slide in with the forge animation,
+ * beads slide back along the line to #1 on every fee, coins land on traded links —
+ * all driven only by real store events.
  */
 export function ChainStrip({
   chainId,
@@ -136,6 +184,10 @@ export function ChainStrip({
   const ref = useRef<HTMLDivElement>(null);
   const len = links?.length ?? 0;
   const prevLen = useRef(len);
+  const lastSeen = useRef<number | undefined>(undefined);
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [hits, setHits] = useState<Record<number, number>>({});
+  const [paid, setPaid] = useState<number | undefined>(undefined);
 
   // Most recent trade per link (last ~4s) for the "+fee" float.
   const trades = useMemo(() => {
@@ -147,6 +199,46 @@ export function ChainStrip({
     }
     return m;
   }, [events, chainId]);
+
+  // Turn new events into flights. Events present at mount are history: never replayed.
+  useEffect(() => {
+    if (lastSeen.current === undefined) {
+      lastSeen.current = events[0]?.id ?? 0;
+      return;
+    }
+    const fresh: ChainEvent[] = [];
+    for (const e of events) {
+      if (e.id <= lastSeen.current) break;
+      if (e.chainId === chainId) fresh.push(e);
+    }
+    lastSeen.current = Math.max(lastSeen.current, events[0]?.id ?? 0);
+    if (!fresh.length || !links) return;
+    const tipI = links.length - 1;
+    const add: Flight[] = [];
+    const timers: number[] = [];
+    for (const e of fresh.reverse()) {
+      const i = e.n - 1;
+      if (e.kind === 'trade') {
+        // coin lands on the traded link, then 70% drops into the tip's vault
+        add.push({ id: `c${e.id}`, kind: 'coin', x0: xOf(i), y0: ICON_Y - 34, x1: xOf(i), y1: ICON_Y - 6, dur: 380, delay: 0 });
+        timers.push(window.setTimeout(() => setHits((h) => ({ ...h, [e.n]: e.id })), 360));
+        for (let k = 0; k < 2; k++)
+          add.push({ id: `v${e.id}${k}`, kind: 'vault', x0: xOf(i), y0: ICON_Y, x1: xOf(tipI) + (k ? 4 : -4), y1: VAULT_Y, dur: 520 + Math.abs(tipI - i) * 25, delay: 420 + k * 90 });
+      } else if (e.kind === 'fee_to_root' && e.n !== 1) {
+        // 30% slides back along the line to #1
+        const dist = i * CELL;
+        const dur = Math.min(2200, 500 + dist * 1.6);
+        for (let k = 0; k < 3; k++) add.push({ id: `r${e.id}${k}`, kind: 'root', x0: xOf(i), y0: ICON_Y, x1: xOf(0), y1: ICON_Y, dur, delay: 460 + k * 110 });
+        timers.push(window.setTimeout(() => setPaid(e.id), 460 + dur));
+      }
+    }
+    if (add.length) {
+      setFlights((f) => [...f, ...add]);
+      const life = Math.max(...add.map((f) => f.delay + f.dur)) + 100;
+      timers.push(window.setTimeout(() => setFlights((f) => f.filter((x) => !add.includes(x))), life));
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [events, chainId, links]);
 
   useLayoutEffect(() => {
     const el = ref.current;
@@ -166,9 +258,10 @@ export function ChainStrip({
 
   if (!links) return null;
   const now = Date.now();
+  const tip = links[links.length - 1];
   return (
     <div ref={ref} className="no-bar overflow-x-auto overscroll-x-contain" style={{ touchAction: 'pan-x pan-y' }}>
-      <div className="flex w-max items-start px-4 pb-2 pt-3">
+      <div className="relative flex w-max items-start px-4 pb-2 pt-3">
         {links.map((l, i) => {
           const t = forged[`${chainId}:${l.n}`];
           return (
@@ -179,15 +272,30 @@ export function ChainStrip({
               animate={!!t && now - t < 1500}
               selected={selected === l.n}
               trade={trades.get(l.n)}
+              hit={hits[l.n]}
+              paid={l.n === 1 ? paid : undefined}
               onSelect={onSelect}
             />
           );
         })}
-        {links[links.length - 1]?.alive && (
-          <span className="flex h-12 shrink-0 items-center pl-6 text-xs italic text-muted" style={{ width: CELL * 1.6 }}>
-            forging…
-          </span>
-        )}
+        <Ghost n={tip.n + 1} broken={!tip.alive} />
+        {/* beads in flight (content coordinates, so they scroll with the line) */}
+        <span className="pointer-events-none absolute inset-0" aria-hidden>
+          {flights.map((f) => (
+            <span
+              key={f.id}
+              className={`bead bead-${f.kind}`}
+              style={{
+                ['--x0' as string]: `${f.x0}px`,
+                ['--y0' as string]: `${f.y0}px`,
+                ['--x1' as string]: `${f.x1}px`,
+                ['--y1' as string]: `${f.y1}px`,
+                animationDuration: `${f.dur}ms`,
+                animationDelay: `${f.delay}ms`,
+              }}
+            />
+          ))}
+        </span>
       </div>
     </div>
   );

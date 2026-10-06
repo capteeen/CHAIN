@@ -155,3 +155,32 @@ rect.mech-heat { fill: rgb(var(--ink)); stroke-width: 0; }
 @media (prefers-reduced-motion: reduce) {
   .mech-link.is-forging, .mech-pay, .mech-ray, .split-wave, .float-up-inline { animation: none !important; }
 }
+
+/* ---------- live strip: beads, clink, paid pulse, ghost ---------- */
+.bead { position: absolute; left: 0; top: 0; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 999px; background: rgb(var(--ink)); box-shadow: 0 0 0 2px rgb(var(--surface)); opacity: 0; animation-name: bead-fly; animation-timing-function: cubic-bezier(.3,0,.2,1); animation-fill-mode: both; }
+.bead-root { background: rgb(var(--ink)); }
+.bead-vault { width: 7px; height: 7px; background: rgb(var(--steel)); animation-timing-function: cubic-bezier(.4,0,.7,1); }
+.bead-coin { width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; animation-name: bead-drop; animation-timing-function: cubic-bezier(.3,1.3,.5,1); }
+@keyframes bead-fly {
+  0% { transform: translate(var(--x0), var(--y0)); opacity: 0 }
+  12% { opacity: 1 }
+  88% { opacity: 1 }
+  100% { transform: translate(var(--x1), var(--y1)); opacity: 0 }
+}
+@keyframes bead-drop {
+  0% { transform: translate(var(--x0), var(--y0)) scale(.4); opacity: 0 }
+  30% { opacity: 1 }
+  100% { transform: translate(var(--x1), var(--y1)) scale(1); opacity: 0 }
+}
+.clink { transform-origin: 50% 50%; animation: clink 450ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes clink { 0% { transform: translateX(-50%) scale(1) } 35% { transform: translateX(-50%) scale(1.12) translateY(2px) } 100% { transform: translateX(-50%) scale(1) } }
+.heat { filter: blur(3px); transition: opacity 500ms; }
+.paid-ring { position: absolute; left: 50%; top: 24px; width: 72px; height: 42px; margin: -21px 0 0 -36px; border: 2px solid rgb(var(--gold)); border-radius: 50%; animation: paid 700ms ease-out both; pointer-events: none; }
+@keyframes paid { from { transform: scale(.85); opacity: 1 } to { transform: scale(1.45); opacity: 0 } }
+.ghost-breathe { animation: breathe 2.4s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
+.forging span { animation: dots 1.4s infinite; opacity: 0 }
+.forging span:nth-child(2) { animation-delay: .3s }
+.forging span:nth-child(3) { animation-delay: .6s }
+@keyframes dots { 0% { opacity: 0 } 40% { opacity: 1 } 100% { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .bead, .clink, .paid-ring, .ghost-breathe, .forging span { animation: none !important; } .forging span { opacity: 1 } }
