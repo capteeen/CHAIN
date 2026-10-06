@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --base: 244 244 242;    /* #F4F4F2 */
+  --surface: 255 255 255; /* #FFFFFF */
+  --ink: 17 17 17;        /* #111111 */
+  --muted: 110 110 110;   /* #6E6E6E */
+  --rule: 218 218 214;    /* #DADAD6 */
+  --steel: 59 74 92;      /* #3B4A5C */
+  --gold: 201 162 39;     /* #C9A227 — link #1 only */
+  --broken: 192 57 43;
+  color-scheme: light;
+}
+:root.night {
+  --base: 20 20 20;       /* #141414 */
+  --surface: 28 28 28;    /* #1C1C1C */
+  --ink: 244 244 242;     /* #F4F4F2 */
+  --muted: 150 150 146;
+  --rule: 50 50 48;
+  --steel: 120 140 164;   /* steel lifted for contrast on dark */
+  --broken: 232 92 76;
+  color-scheme: dark;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+body {
+  @apply bg-base text-ink font-sans antialiased;
+  font-size: 16px;
+  font-feature-settings: 'ss01', 'cv11', 'tnum';
+}
+
+@layer components {
+  .wrap { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.18em] text-muted; }
+  .h2 { @apply text-[clamp(40px,7vw,88px)] font-extrabold uppercase leading-[0.9] tracking-crush; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-5 h-11 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-steel text-white hover:brightness-110; }
+  .btn-ghost { @apply btn border border-rule bg-surface hover:border-ink; }
+  .card { @apply rounded-2xl border border-rule bg-surface; }
+  .tab { @apply rounded-full px-4 h-9 text-sm font-medium text-muted transition hover:text-ink; }
+  .tab-on { @apply bg-ink; color: rgb(var(--base)) !important; }
+  .num { font-style: italic; @apply text-xs font-medium text-muted; }
+  .field { @apply w-full rounded-xl border border-rule bg-base px-3 h-11 text-sm outline-none focus:border-steel; }
+  .no-bar { scrollbar-width: none; }
+  .no-bar::-webkit-scrollbar { display: none; }
+}
+
+/* ---------- forge animation (400ms): slide in, ring closes, spark ---------- */
+@keyframes forge-in {
+  from { transform: translateX(48px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes ring-close {
+  from { stroke-dashoffset: var(--len); }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes spark {
+  0% { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes ray {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+}
+.forge-in { animation: forge-in 400ms cubic-bezier(.2,.8,.2,1) both; }
+.forge-in .ring { stroke-dasharray: var(--len); animation: ring-close 400ms ease-out both; }
+.spark { transform-box: fill-box; transform-origin: center; animation: spark 500ms 300ms ease-out both; }
+.ray { animation: ray 450ms 320ms ease-out both; }
+@keyframes pulse-fill { 0%,100% { opacity: 1 } 50% { opacity: .55 } }
+.bar-hot { animation: pulse-fill 1.2s ease-in-out infinite; }
+
+/* ---------- wallet-adapter modal re-skin ---------- */
+.wallet-adapter-modal-wrapper { background: rgb(var(--surface)) !important; border-radius: 20px !important; box-shadow: none !important; border: 1px solid rgb(var(--rule)); }
+.wallet-adapter-modal-title { color: rgb(var(--ink)) !important; font-family: Inter, sans-serif !important; }
+.wallet-adapter-modal-list .wallet-adapter-button { color: rgb(var(--ink)) !important; font-family: Inter, sans-serif !important; }
+.wallet-adapter-modal-list .wallet-adapter-button:hover { background: rgb(var(--base)) !important; }
+.wallet-adapter-modal-button-close { background: rgb(var(--base)) !important; }
+.wallet-adapter-modal-list-more, .wallet-adapter-modal-middle-button { color: rgb(var(--ink)) !important; }
+.wallet-adapter-modal-overlay { background: rgb(0 0 0 / 0.5) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-in, .forge-in .ring, .spark, .ray, .bar-hot { animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+@keyframes float-up {
+  0% { transform: translate(-50%, 6px); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(-50%, -10px); opacity: 0; }
+}
+.float-up { animation: float-up 1.4s ease-out both; }
+@keyframes toast-in { from { transform: translate(-50%, 12px); opacity: 0 } to { transform: translate(-50%, 0); opacity: 1 } }
+.toast-in { animation: toast-in 200ms ease-out both; }

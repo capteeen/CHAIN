@@ -1,0 +1,32 @@
+{
+  "name": "chain",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@solana/wallet-adapter-base": "^0.9.28",
+    "@solana/wallet-adapter-react": "^0.15.40",
+    "@solana/wallet-adapter-react-ui": "^0.9.40",
+    "@solana/web3.js": "^1.99.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^4.5.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.29",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}
