@@ -5,7 +5,7 @@ import { renderOg } from '../lib/og';
 import type { Chain, Link } from '../types';
 import { Arrow, ChainImage, Copy, VaultBar } from './Bits';
 import { ChainStrip } from './ChainStrip';
-import { ChainScene } from '../three/ChainScene';
+import { FeeSplit, VaultGauge } from './Gauges';
 import { ActivityFeed } from './Activity';
 import { Reveal } from './Reveal';
 
@@ -193,15 +193,21 @@ export function ChainDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      <div className="mt-10 border-y border-rule bg-surface">
-        <ChainScene chainId={chain.id} mode="detail" selected={selected.n} onSelect={setSel} className="h-[300px] sm:h-[380px] lg:h-[440px]" />
-        <div className="border-t border-rule pt-2">
-          <ChainStrip chainId={chain.id} selected={selected.n} onSelect={setSel} />
-        </div>
-        <p className="wrap pb-4 text-xs text-muted">Click a link for details. Swipe to scroll the line.</p>
+      <div className="mt-10 border-y border-rule bg-surface py-6">
+        <ChainStrip chainId={chain.id} selected={selected.n} onSelect={setSel} />
+        <p className="wrap mt-3 text-xs text-muted">Click a link for details. Swipe to scroll the line.</p>
       </div>
 
-      <div className="wrap mt-10 grid gap-6 lg:grid-cols-[1fr_420px]">
+      <div className="wrap mt-8 grid gap-6 lg:grid-cols-[auto_1fr]">
+        <div className="card p-5 sm:p-6">
+          <VaultGauge chain={chain} tip={tip} />
+        </div>
+        <div className="card p-5 sm:p-6">
+          <FeeSplit chain={chain} />
+        </div>
+      </div>
+
+      <div className="wrap mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
         <LinkPanel chain={chain} link={selected} links={links} onSelect={setSel} />
         <div className="space-y-6">
           <Reveal className="card p-5 sm:p-6">

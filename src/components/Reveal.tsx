@@ -13,7 +13,7 @@ export function Reveal({ children, className = '', delay = 0, as: Tag = 'div' }:
           io.disconnect();
         }
       },
-      { threshold: 0.12 },
+      { threshold: 0.08, rootMargin: '0px 0px -5% 0px' },
     );
     io.observe(el);
     return () => io.disconnect();

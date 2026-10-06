@@ -93,17 +93,6 @@ body {
 @keyframes toast-in { from { transform: translate(-50%, 12px); opacity: 0 } to { transform: translate(-50%, 0); opacity: 1 } }
 .toast-in { animation: toast-in 200ms ease-out both; }
 
-/* ---------- 3D scene labels ---------- */
-.lbl { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 11px; font-weight: 600; color: rgb(var(--muted)); transition: opacity 200ms; will-change: transform; }
-.lbl-num { font-style: italic; font-weight: 500; }
-.lbl-key { font-size: 12px; color: rgb(var(--ink)); background: rgb(var(--surface) / 0.85); border: 1px solid rgb(var(--rule)); border-radius: 999px; padding: 3px 9px; backdrop-filter: blur(4px); }
-.lbl-root { color: rgb(var(--gold)) !important; }
-.lbl-float { font-size: 12px; font-weight: 700; color: rgb(var(--ink)); }
-.lbl-forge { font-size: 14px; letter-spacing: -0.02em; }
-.lbl-broken { color: rgb(var(--broken)) !important; }
-.lbl[data-pin="pin-l"]::before { content: '← '; }
-.lbl[data-pin="pin-r"]::after { content: ' →'; }
-
 /* ---------- scroll reveal ---------- */
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity 700ms cubic-bezier(.2,.7,.2,1), transform 700ms cubic-bezier(.2,.7,.2,1); }
 .reveal.in { opacity: 1; transform: none; }
@@ -125,4 +114,44 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
   .letter, .tick-in, .live-dot, .flash { animation: none !important; }
+}
+
+/* ---------- mechanism diagram ---------- */
+.mech-line { stroke: rgb(var(--rule)); stroke-width: 1.5; }
+.mech-ring { fill: none; stroke: rgb(var(--steel)); stroke-width: 9; transition: stroke 400ms; }
+rect.mech-ring { fill: rgb(var(--steel)); stroke-width: 0; }
+.mech-link.is-root .mech-ring { stroke: rgb(var(--gold)); }
+.mech-link.is-root rect.mech-ring { fill: rgb(var(--gold)); }
+.mech-heat { fill: none; stroke: rgb(var(--ink)); stroke-width: 9; filter: url(#glow); transition: opacity 500ms; pointer-events: none; }
+rect.mech-heat { fill: rgb(var(--ink)); stroke-width: 0; }
+.mech-pay { fill: none; stroke: rgb(var(--gold)); stroke-width: 3; animation: mech-pay 700ms ease-out both; }
+@keyframes mech-pay { from { transform: scale(.9); transform-origin: center; opacity: 1 } to { transform: scale(1.25); opacity: 0 } }
+.mech-link { transform-box: fill-box; transform-origin: center; }
+.mech-link.is-forging { animation: mech-forge 450ms cubic-bezier(.2,.8,.2,1) both; }
+.mech-link.is-forging ellipse.mech-ring { stroke-dasharray: 100; animation: ring-close 450ms ease-out both; --len: 100; }
+@keyframes mech-forge { from { transform: translateX(40px) scale(.6); opacity: 0 } to { transform: none; opacity: 1 } }
+.mech-ray { fill: rgb(var(--ink)); animation: ray 500ms 250ms ease-out both; }
+.mech-ghost ellipse, .mech-ghost rect { fill: none; stroke: rgb(var(--rule)); stroke-width: 2; stroke-dasharray: 5 5; }
+.mech-ghost { transition: opacity 300ms; }
+.mech-num { font-size: 11px; font-style: italic; font-weight: 500; fill: rgb(var(--muted)); }
+.mech-num.is-root { fill: rgb(var(--gold)); font-weight: 700; }
+.mech-track { fill: rgb(var(--rule)); }
+.mech-fill { fill: rgb(var(--steel)); transition: width 600ms cubic-bezier(.2,.8,.2,1); }
+.mech-cap { font-size: 10px; font-weight: 600; fill: rgb(var(--muted)); }
+.mech-tag { font-size: 11px; font-weight: 700; fill: rgb(var(--ink)); transition: opacity 300ms; }
+.fill-gold { fill: rgb(var(--gold)); }
+.mech-coin { transition: transform 520ms cubic-bezier(.3,1.4,.5,1), opacity 250ms; }
+.mech-coin-c { fill: rgb(var(--ink)); }
+.mech-coin-t { font-size: 8px; font-weight: 800; fill: rgb(var(--base)); letter-spacing: .04em; }
+.mech-dot { fill: rgb(var(--ink)); }
+.mech-caption { @apply mt-3 min-h-[2.5rem] text-sm text-muted; }
+
+/* ---------- fee split meter ---------- */
+.split-wave { position: absolute; inset: 0; transform-origin: left; animation: split-wave 900ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes split-wave { from { transform: scaleX(0); opacity: 1 } to { transform: scaleX(1); opacity: 0 } }
+.float-up-inline { animation: float-up-inline 1.6s ease-out both; }
+@keyframes float-up-inline { 0% { opacity: 0; transform: translateY(4px) } 15% { opacity: 1; transform: none } 100% { opacity: 0; transform: translateY(-6px) } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mech-link.is-forging, .mech-pay, .mech-ray, .split-wave, .float-up-inline { animation: none !important; }
 }
