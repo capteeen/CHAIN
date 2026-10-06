@@ -213,7 +213,7 @@ function Rig({ chainId, mode, selected, onSelect, labels, pointer, night }: RigP
     const sway = REDUCED ? 0 : Math.sin(now / 4000) * 0.6;
     const dist = (mode === 'hero' ? 14 : 10.5) * (narrow ? 1.55 : 1);
     // hero: chain runs along the lower band, under the copy
-    const lookY = mode === 'hero' ? (narrow ? 3.3 : 3.1) : 0;
+    const lookY = mode === 'hero' ? (narrow ? 1.0 : 3.1) : 0;
     camera.position.set(camTarget.current.x + sway + px * 1.4, 2.4 + py * 0.9 + (mode === 'hero' ? 1.2 : 0), dist);
     camera.lookAt(camTarget.current.x, lookY, 0);
 
